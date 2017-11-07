@@ -9,18 +9,18 @@ import (
 
 // ReadWriter should satisfy a buffered Reader interface and unbuffered Writer interface.
 type ReadWriter struct {
-	console *bufio.Reader // always buffered
-	io.Writer
-	prompt []byte
+	prompt        []byte
+	*bufio.Reader // console input
+	io.Writer     // console output
 }
 
 // NewReadWriter creates a new reader by opening the console for both input and output.
 // Prompt is the prompt to display before accepting input.
 func NewReadWriter(prompt string) *ReadWriter {
 	rw := &ReadWriter{
-		console: bufio.NewReader(os.Stdin),
-		Writer:  os.Stdout,
-		prompt:  []byte("> "),
+		prompt: []byte("> "),
+		Reader: bufio.NewReader(os.Stdin),
+		Writer: os.Stdout,
 	}
 	if prompt != "" {
 		rw.SetPrompt(prompt)
@@ -48,7 +48,7 @@ func (rw *ReadWriter) Prompt() (n int, err error) {
 func (rw *ReadWriter) ReadLine() (line []byte, isPrefix bool, err error) {
 	rw.Prompt()
 	for {
-		tmp, isPrefix, err := rw.console.ReadLine()
+		tmp, isPrefix, err := rw.Reader.ReadLine()
 		if err != nil {
 			if err == io.EOF && line != nil {
 				return line, false, nil
@@ -63,19 +63,15 @@ func (rw *ReadWriter) ReadLine() (line []byte, isPrefix bool, err error) {
 	return line, isPrefix, err
 }
 
-// ReadRune reads a single rune
-// need to embed this in
-
 // ReadString prints a prompt, then accepts a line of text from the console.
-// If there are no errors reading the source, then all input up to delimiter is returned to the caller.
+// If there are no errors reading the source, then all input up to (and including) the delimiter is returned to the caller.
 func (rw *ReadWriter) ReadString(delim byte) (string, error) {
 	rw.Prompt()
-	return rw.console.ReadString(delim)
+	return rw.Reader.ReadString(delim)
 }
 
 // ReadToEOL prints a prompt, then accepts a line of text from the console.
 func (rw *ReadWriter) ReadToEOL() (string, error) {
-	rw.Prompt()
 	bytes, _, err := rw.ReadLine()
 	return string(bytes), err
 }
