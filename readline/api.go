@@ -7,21 +7,20 @@ import (
 	"os"
 )
 
-// ReadWriter should satisfy a buffered Reader interface.
-// For convenience, we use "console" for input, and terminal for "output".
+// ReadWriter should satisfy a buffered Reader interface and unbuffered Writer interface.
 type ReadWriter struct {
-	console  *bufio.Reader // always buffered
-	terminal io.Writer     // defaults to unbuffered
-	prompt   []byte
+	console *bufio.Reader // always buffered
+	io.Writer
+	prompt []byte
 }
 
 // NewReadWriter creates a new reader by opening the console for both input and output.
 // Prompt is the prompt to display before accepting input.
 func NewReadWriter(prompt string) *ReadWriter {
 	rw := &ReadWriter{
-		console:  bufio.NewReader(os.Stdin),
-		terminal: os.Stdout,
-		prompt:   []byte("> "),
+		console: bufio.NewReader(os.Stdin),
+		Writer:  os.Stdout,
+		prompt:  []byte("> "),
 	}
 	if prompt != "" {
 		rw.SetPrompt(prompt)
@@ -39,7 +38,7 @@ func (rw *ReadWriter) Prompt() (n int, err error) {
 	if len(rw.prompt) == 0 {
 		return 0, nil
 	}
-	return rw.terminal.Write(rw.prompt)
+	return rw.Writer.Write(rw.prompt)
 }
 
 // ReadLine prints a prompt, then accepts a line of text from the console.
@@ -84,9 +83,4 @@ func (rw *ReadWriter) ReadToEOL() (string, error) {
 // SetPrompt updates the prompt string
 func (rw *ReadWriter) SetPrompt(prompt string) {
 	rw.prompt = []byte(prompt)
-}
-
-// Write a slice of bytes to the terminal
-func (rw *ReadWriter) Write(p []byte) (n int, err error) {
-	return rw.terminal.Write(p)
 }
