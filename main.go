@@ -7,9 +7,17 @@ import (
 )
 
 func main() {
-	c := readline.New("> ")
-	input, _ := c.ReadLine()
+	c := readline.NewReadWriter("> ")
+	input, _, err := c.ReadLine()
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Fprintln(c, ">>", input, "<<")
-	input, _ = c.ReadLine()
+	fmt.Fprintln(c, ">>", string(input), "<<")
+	input, _, err = c.ReadLine()
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Fprintln(c, ">>", input, "<<")
+	fmt.Fprintln(c, ">>", string(input), "<<")
 }
