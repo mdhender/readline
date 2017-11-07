@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/mdhender/readline/readline"
 )
@@ -19,7 +18,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	text = strings.TrimRight(text, "\r\n")
+	//text = strings.TrimRight(text, "\r\n")
 	fmt.Fprintln(c, ">>", text, "<<")
 	text, err = c.ReadToEOL()
 	if err != nil {

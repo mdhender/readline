@@ -64,10 +64,17 @@ func (rw *ReadWriter) ReadLine() (line []byte, isPrefix bool, err error) {
 }
 
 // ReadString prints a prompt, then accepts a line of text from the console.
-// If there are no errors reading the source, then all input up to (and including) the delimiter is returned to the caller.
+// The implementation is differs from Reader.ReadString in that end-of-line is treated wonkily.
+// If the delimiter is '\n', then the end-of-line characters are not included in the string returned.
+// (In other words, both '\r' and '\n' are trimmed from the end of the string).
+// Otherwise, all input up to (and including) the delimiter is returned.
 func (rw *ReadWriter) ReadString(delim byte) (string, error) {
-	rw.Prompt()
-	return rw.Reader.ReadString(delim)
+	if delim != '\n' {
+		rw.Prompt()
+		return rw.Reader.ReadString(delim)
+	}
+	line, _, err := rw.ReadLine()
+	return string(line), err
 }
 
 // ReadToEOL prints a prompt, then accepts a line of text from the console.
