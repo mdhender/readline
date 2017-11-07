@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"io"
 	"os"
-	"strings"
 )
 
 // ReadWriter should satisfy a buffered Reader interface.
@@ -71,23 +70,15 @@ func (rw *ReadWriter) ReadLine() (line []byte, isPrefix bool, err error) {
 // ReadString prints a prompt, then accepts a line of text from the console.
 // If there are no errors reading the source, then all input up to delimiter is returned to the caller.
 func (rw *ReadWriter) ReadString(delim byte) (string, error) {
-	if len(rw.prompt) > 0 {
-		rw.Write(rw.prompt)
-	}
+	rw.Prompt()
 	return rw.console.ReadString(delim)
 }
 
-// ReadSString prints a prompt, then accepts a line of text from the console.
-// If there are no errors reading the source, then all input up to end-of-line (or end-of-input) is returned to the caller.
-func (rw *ReadWriter) ReadSString(delim byte) (string, error) {
-	if len(rw.prompt) > 0 {
-		rw.Write(rw.prompt)
-	}
-	line, err := rw.console.ReadString('\n')
-	if err == nil {
-		strings.TrimRight(line, "\r\n")
-	}
-	return line, err
+// ReadToEOL prints a prompt, then accepts a line of text from the console.
+func (rw *ReadWriter) ReadToEOL() (string, error) {
+	rw.Prompt()
+	bytes, _, err := rw.ReadLine()
+	return string(bytes), err
 }
 
 // SetPrompt updates the prompt string
